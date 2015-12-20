@@ -1,0 +1,25 @@
+{
+    "name": "crysalead/env",
+    "description": "Environment variable container",
+    "keywords": ["Environment"],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "crysalead/kahlan": "~2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lead\\Env\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lead\\Spec\\Env\\": "spec/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}

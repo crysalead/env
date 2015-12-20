@@ -1,0 +1,28 @@
+sudo: false
+language: php
+
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+  - hhvm
+
+matrix:
+  allow_failures:
+    - php: 7.0
+  fast_finish: true
+
+before_script:
+  - composer config -g github-oauth.github.com $GITHUB_COMPOSER_AUTH
+  - composer install
+  - if [[ $TRAVIS_PHP_VERSION =~ ^hhvm ]]; then echo 'xdebug.enable = On' >> /etc/hhvm/php.ini; fi
+
+script: bin/kahlan --coverage=3 --clover=clover.xml
+
+after_success:
+  - "if [ $(phpenv version-name) = '5.6' ]; then wget https://scrutinizer-ci.com/ocular.phar; fi"
+  - "if [ $(phpenv version-name) = '5.6' ]; then php ocular.phar code-coverage:upload --format=php-clover 'clover.xml'; fi"
+
+env:
+  global:
+    secure: fmmYzWbC92FDXcFJ2ZGT2v4o7WD+CP1zz7Sn7GCuTfWqLRtRsdDQt0CmZvBg9m+61SBJZNszloE8rxHtbN5JUUzJolJSKJNUV523/CrgO6xNq2eyBffMzoAjjauVqLnURi4/7Y9ZVuAC3yKMJI7VnuMqBY5Q2cwYzTohbaZYdoCYEzSDcW6IAwV7Plt8NG3xeDbTi02e/XBRcWeCUdtdC+2YIQ1X0TylZXCVtAEIzfBr2xhgqGdYze8DWg8kSoO7t5vvpxuoDHVQnW2sPWIW2z9xJggQP+yRDzF+N1UqUAT+m5bNWSEy4GWX8lLzRgKUpIQLC9vKGdWPezhuvZV/gYCTJEaSUnK7vhqRajDP0zzdz6m+AQBCRTQBHG+nEQ2//UsVM78qeijlAEF34yuvPvyzh0hFyGgOr+NLGT9ZwQ3FSkwdyL96oEEcVPKDtqgEjIK+vrPG7rotmqEMRDXGtEePBbtGAz3G7/txH5B/ywyrChG7vHljRZGP00p6+3EKVByipNfhX5BoZ1gLIl34abMXIn7D0EnE8LsmYqzBi35Y8uxvGd6mDijGJ+M5C2F/eyi9rGtuk5TJ2mfh/6LlsRM8RybjAsOoXRgiCatH/kUf0uQ3lT3BqKlizZivmV0zoqJCeE3gC5rGuhKaBS95YB9kPz/1Ver2cWNz1zduxzw=
