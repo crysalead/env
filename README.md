@@ -20,18 +20,21 @@ use Lead\Env\Env;
 
 $env = new Env($_SERVER + $_ENV);
 
-$env->get('PHP_SELF');
+$env['PHP_SELF'];
 
-$env->set('CUSTOM_VARIABLE', 'myvalue');
+$env['UNEXISTING_VARIABLE']; // `false` consistent to `getenv()`
 
+$env['CUSTOM_VARIABLE'] = 'myvalue';
+
+// Multiple set
 $env->set([
     'CUSTOM_VARIABLE2' => 'myvalue2',
     'CUSTOM_VARIABLE3' => 'myvalue3'
 ]);
 
-$env->has('CUSTOM_VARIABLE');
+isset($env['CUSTOM_VARIABLE']);
 
-$env->remove('CUSTOM_VARIABLE');
+unset($env['CUSTOM_VARIABLE']);
 
 $env->clear(); // removes all variables.
 ```

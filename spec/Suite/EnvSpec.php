@@ -14,26 +14,26 @@ describe("Env", function() {
         it("sets default environment variables", function() {
 
             $env = new Env();
-            expect($env->get())->toBe(['PHP_SAPI' => 'cli']);
+            expect($env->data())->toBe(['PHP_SAPI' => 'cli']);
 
         });
 
         it("don't normalize variables", function() {
 
             $env = new Env([], false);
-            expect($env->get())->toBe([]);
+            expect($env->data())->toBe([]);
 
         });
 
     });
 
-    describe("->set()/->get()", function() {
+    describe("->offsetSet()/->offsetGet()", function() {
 
         it("sets a variable", function() {
 
-            expect($this->env->set('CUSTOM_VARIABLE', 'myvalue'))->toBe($this->env);
-            expect($this->env->get('CUSTOM_VARIABLE'))->toBe('myvalue');
-            expect($this->env->get())->toBe([
+            $this->env['CUSTOM_VARIABLE'] = 'myvalue';
+            expect($this->env['CUSTOM_VARIABLE'])->toBe('myvalue');
+            expect($this->env->data())->toBe([
                 'CUSTOM_VARIABLE' => 'myvalue'
             ]);
 
@@ -46,22 +46,42 @@ describe("Env", function() {
                 'CUSTOM_VARIABLE2' =>'myvalue2'
             ]))->toBe($this->env);
 
-            expect($this->env->get())->toBe([
+            expect($this->env->data())->toBe([
                 'CUSTOM_VARIABLE1' =>'myvalue1',
                 'CUSTOM_VARIABLE2' =>'myvalue2'
             ]);
 
         });
 
+        it("returns `false` for unexisting value", function() {
+
+            expect($this->env['CUSTOM_VARIABLE'])->toBe(false);
+
+        });
+
     });
 
-    describe("->has()", function() {
+    describe("->offsetExists()", function() {
 
         it("checks if a variable exists", function() {
 
-            expect($this->env->has('CUSTOM_VARIABLE'))->toBe(false);
-            expect($this->env->set('CUSTOM_VARIABLE', 'myvalue'))->toBe($this->env);
-            expect($this->env->has('CUSTOM_VARIABLE'))->toBe(true);
+            expect(isset($this->env['CUSTOM_VARIABLE']))->toBe(false);
+            $this->env['CUSTOM_VARIABLE'] = 'myvalue';
+            expect(isset($this->env['CUSTOM_VARIABLE']))->toBe(true);
+
+        });
+
+    });
+
+    describe("->offsetUnset()", function() {
+
+        it("removes an environment variable", function() {
+
+            $this->env['CUSTOM_VARIABLE'] = 'myvalue';
+            expect(isset($this->env['CUSTOM_VARIABLE']))->toBe(true);
+
+            unset($this->env['CUSTOM_VARIABLE']);
+            expect(isset($this->env['CUSTOM_VARIABLE']))->toBe(false);
 
         });
 
@@ -71,28 +91,18 @@ describe("Env", function() {
 
         it("clears all environment variables", function() {
 
-            expect($this->env->get())->toBe([]);
-            expect($this->env->set('CUSTOM_VARIABLE', 'myvalue'))->toBe($this->env);
-            expect($this->env->get())->toBe([
-                'CUSTOM_VARIABLE' => 'myvalue'
+            $this->env->set([
+                'CUSTOM_VARIABLE1' => 'myvalue1',
+                'CUSTOM_VARIABLE2' => 'myvalue2'
+            ]);
+
+            expect($this->env->data())->toBe([
+                'CUSTOM_VARIABLE1' => 'myvalue1',
+                'CUSTOM_VARIABLE2' => 'myvalue2'
             ]);
 
             $this->env->clear();
-            expect($this->env->get())->toBe([]);
-
-        });
-
-    });
-
-    describe("->remove()", function() {
-
-        it("removes an environment variable", function() {
-
-            expect($this->env->set('CUSTOM_VARIABLE', 'myvalue'))->toBe($this->env);
-            expect($this->env->has('CUSTOM_VARIABLE'))->toBe(true);
-
-            expect($this->env->remove('CUSTOM_VARIABLE'))->toBe($this->env);
-            expect($this->env->has('CUSTOM_VARIABLE'))->toBe(false);
+            expect($this->env->data())->toBe([]);
 
         });
 
@@ -103,39 +113,39 @@ describe("Env", function() {
         it("normalizes REMOTE_ADDR", function() {
 
             $env = new Env(['REMOTE_ADDR' => '123.456.789.000']);
-            expect($env->get('REMOTE_ADDR'))->toBe('123.456.789.000');
+            expect($env['REMOTE_ADDR'])->toBe('123.456.789.000');
 
 
             $env = new Env([
                 'REMOTE_ADDR' => '123.456.789.000',
                 'HTTP_X_FORWARDED_FOR' => '111.222.333.444'
             ]);
-            expect($env->get('REMOTE_ADDR'))->toBe('111.222.333.444');
+            expect($env['REMOTE_ADDR'])->toBe('111.222.333.444');
 
             $env = new Env([
                 'REMOTE_ADDR' => '123.456.789.000',
                 'HTTP_X_FORWARDED_FOR' => '333.222.444.111, 444.333.222.111, 255.255.255.255'
             ]);
-            expect($env->get('REMOTE_ADDR'))->toBe('333.222.444.111');
+            expect($env['REMOTE_ADDR'])->toBe('333.222.444.111');
 
             $env = new Env([
                 'REMOTE_ADDR' => '123.456.789.000',
                 'HTTP_PC_REMOTE_ADDR' => '222.333.444.555'
             ]);
-            expect($env->get('REMOTE_ADDR'))->toBe('222.333.444.555');
+            expect($env['REMOTE_ADDR'])->toBe('222.333.444.555');
 
             $env = new Env([
                 'REMOTE_ADDR' => '123.456.789.000',
                 'HTTP_X_REAL_IP' => '111.222.333.444'
             ]);
-            expect($env->get('REMOTE_ADDR'))->toBe('111.222.333.444');
+            expect($env['REMOTE_ADDR'])->toBe('111.222.333.444');
 
             $env = new Env([
                 'REMOTE_ADDR' => '123.456.789.000',
                 'HTTP_X_FORWARDED_FOR' => '111.222.333.444',
                 'HTTP_PC_REMOTE_ADDR' => '222.333.444.555'
             ]);
-            expect($env->get('REMOTE_ADDR'))->toBe('111.222.333.444');
+            expect($env['REMOTE_ADDR'])->toBe('111.222.333.444');
 
         });
 
@@ -144,7 +154,7 @@ describe("Env", function() {
             $env = new Env([
                 'REDIRECT_HTTP_AUTHORIZATION' => 'Basic dGVzdC11c2VyOnRlc3QtcGFzc3dvcmQ=',
             ]);
-            expect($env->get('HTTP_AUTHORIZATION'))->toBe('Basic dGVzdC11c2VyOnRlc3QtcGFzc3dvcmQ=');
+            expect($env['HTTP_AUTHORIZATION'])->toBe('Basic dGVzdC11c2VyOnRlc3QtcGFzc3dvcmQ=');
 
         });
 
@@ -154,17 +164,17 @@ describe("Env", function() {
                 'SCRIPT_URI' => 'https://example.com',
                 'HTTPS' => null
             ]);
-            expect($env->get('HTTPS'))->toBe(true);
+            expect($env['HTTPS'])->toBe(true);
 
             $env = new Env([
                 'HTTPS' => 'on'
             ]);
-            expect($env->get('HTTPS'))->toBe(true);
+            expect($env['HTTPS'])->toBe(true);
 
             $env = new Env([
                 'HTTPS' => 'off'
             ]);
-            expect($env->get('HTTPS'))->toBe(false);
+            expect($env['HTTPS'])->toBe(false);
 
         });
 
@@ -174,7 +184,7 @@ describe("Env", function() {
                 'REQUEST_METHOD'              => 'POST',
                 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PATCH'
             ]);
-            expect($env->get('REQUEST_METHOD'))->toBe('PATCH');
+            expect($env['REQUEST_METHOD'])->toBe('PATCH');
         });
 
         it("normalizes SCRIPT_FILENAME", function() {
@@ -183,7 +193,7 @@ describe("Env", function() {
                 'REQUEST_METHOD'              => 'POST',
                 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PATCH'
             ]);
-            expect($env->get('REQUEST_METHOD'))->toBe('PATCH');
+            expect($env['REQUEST_METHOD'])->toBe('PATCH');
         });
 
         it("normalizes IIS environment variables", function() {
@@ -198,7 +208,7 @@ describe("Env", function() {
                 'LOCAL_ADDR'          => '789.456.123.000'
             ]);
 
-            expect($env->get())->toBe([
+            expect($env->data())->toBe([
                 'PHP_SAPI'            => 'isapi',
                 'SCRIPT_NAME'         => '\index.php',
                 'SCRIPT_FILENAME'     => '\app\public\index.php',

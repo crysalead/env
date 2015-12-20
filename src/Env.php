@@ -2,17 +2,10 @@
 namespace Lead\Env;
 
 /**
- * Holds environment variables.
+ * Environment variable container.
  */
-class Env
+class Env extends \Lead\Collection\Collection
 {
-    /**
-     * The environement variables
-     *
-     * @var array
-     */
-    protected $_env = [];
-
     /**
      * The Constructor.
      *
@@ -23,71 +16,47 @@ class Env
      */
     public function __construct($env = [], $normalize = true)
     {
-        $this->_env = $normalize ? $this::normalize($env) : $env;
+        parent::__construct($normalize ? $this::normalize($env) : $env);
     }
 
     /**
-     * Sets a variable.
+     * Returns the value at specified offset or `false` if not exists.
      *
-     * @param string $key   The key.
+     * @param  string $offset The offset to retrieve.
+     * @return mixed          The value at offset.
+     */
+    public function offsetGet($offset)
+    {
+        if (!array_key_exists($offset, $this->_data)) {
+            return false;
+        }
+        return $this->_data[$offset];
+    }
+
+    /**
+     * Sets an array of variables.
+     *
+     * @param string $collection   The key.
      * @param mixed  $value The value.
      * @param self
      */
-    public function set($key, $value = null)
+    public function set($collection, $value = null)
     {
         if (func_num_args() === 1) {
-            foreach ($key as $k => $val) {
-                $this->_env[$k] = $val;
-            }
-        } else {
-            $this->_env[$key] = $value;
+            return parent::merge($collection, true);
         }
+        $this->_data[$collection] = $value;
         return $this;
     }
 
     /**
-     * Gets a variable.
+     * Exports the collection as an array.
      *
-     * @param  string $key The key.
-     * @return mixed       The key's value or `null` if not found.
+     * @return array
      */
-    public function get($key = null)
+    public function data()
     {
-        if (!func_num_args()) {
-            return $this->_env;
-        }
-        return $this->has($key) ? $this->_env[$key] : null;
-    }
-
-    /**
-     * Checks if a key exists.
-     *
-     * @param  string  $key The key to check existance.
-     * @return boolean
-     */
-    public function has($key)
-    {
-        return array_key_exists($key, $this->_env);
-    }
-
-    /**
-     * Removes a variable.
-     *
-     * @param string $key The key
-     * @param self
-     */
-    public function remove($key)
-    {
-        unset($this->_env[$key]);
-        return $this;
-    }
-
-    /**
-     * Removes all variables.
-     */
-    public function clear()
-    {
-        $this->_env = [];
+        return $this->plain();
     }
 
     /**
