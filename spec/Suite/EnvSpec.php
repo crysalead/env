@@ -39,6 +39,26 @@ describe("Env", function() {
 
         });
 
+        it("returns `false` for unexisting value", function() {
+
+            expect($this->env['CUSTOM_VARIABLE'])->toBe(false);
+
+        });
+
+    });
+
+    describe("->set()", function() {
+
+        it("sets a variable", function() {
+
+            $this->env->set('CUSTOM_VARIABLE', 'myvalue');
+            expect($this->env['CUSTOM_VARIABLE'])->toBe('myvalue');
+            expect($this->env->data())->toBe([
+                'CUSTOM_VARIABLE' => 'myvalue'
+            ]);
+
+        });
+
         it("sets an array of variables", function() {
 
             expect($this->env->set([
@@ -50,12 +70,6 @@ describe("Env", function() {
                 'CUSTOM_VARIABLE1' =>'myvalue1',
                 'CUSTOM_VARIABLE2' =>'myvalue2'
             ]);
-
-        });
-
-        it("returns `false` for unexisting value", function() {
-
-            expect($this->env['CUSTOM_VARIABLE'])->toBe(false);
 
         });
 
