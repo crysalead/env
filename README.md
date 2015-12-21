@@ -22,7 +22,7 @@ $env = new Env($_SERVER + $_ENV);
 
 $env['PHP_SELF'];
 
-$env['UNEXISTING_VARIABLE']; // `false` consistent to `getenv()`
+$env['UNEXISTING_VARIABLE']; // returns `false` like `getenv()` on undefined
 
 $env['CUSTOM_VARIABLE'] = 'myvalue';
 
