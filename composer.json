@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "crysalead/collection": "^2.0"
+        "crysalead/collection": "^3.0"
     },
     "require-dev": {
         "kahlan/kahlan": "~3.0"
